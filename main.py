@@ -24,7 +24,7 @@ from PyQt4.QtCore import QThread, SIGNAL
 from PyQt4.QtGui import QApplication, QMainWindow, QWidget, QDialog, QTableWidgetItem, QMessageBox
 from namechecker_ui import Ui_NameChecker
 from build_lists import parse_names, write_avoids, build_project_avoids
-from PHARMA_INN_AVOIDS_test import PHARMA_AVOIDS, INN_USAN_AVOIDS
+from PHARMA_INN_AVOIDS import PHARMA_AVOIDS, INN_USAN_AVOIDS
 from check_avoids import check_avoids, check_internal_names, check_competitor_names
 from check_url import check_domain
 from search_keys import get_keys
@@ -114,9 +114,10 @@ class MainWindow(QMainWindow):
 
     # ----Main Tab Functions---- #
     def commit_names(self):
-        self.stripped_names, self.names_list = parse_names(str(self.ui.textEdit_names.toPlainText()))
+        self.stripped_names, self.names_list = parse_names(unicode(self.ui.textEdit_names.toPlainText()))
         self.ui.textBrowser_url.setText("\n".join(["--- : " + x for x in self.stripped_names]))
         self.ui.plainTextEdit_search_names.setPlainText("\n".join(self.stripped_names))
+        self.ui.textBrowser_conflicts.clear()
         self.show_names()
 
     def all_upper_case(self):
@@ -140,11 +141,11 @@ class MainWindow(QMainWindow):
         self.show_names()
 
     def sort_search_names(self, event):
-        search_names_list = str(self.ui.plainTextEdit_search_names.toPlainText()).split("\n")
+        search_names_list = unicode(self.ui.plainTextEdit_search_names.toPlainText()).split("\n")
         self.ui.plainTextEdit_search_names.setPlainText("\n".join(sorted([x.strip(string.whitespace) for x in search_names_list if x.strip(string.whitespace)])))
 
     def sort_search_keys(self, event):
-        search_key_list = str(self.ui.textBrowser_search_keys.toPlainText()).split("\n")
+        search_key_list = unicode(self.ui.textBrowser_search_keys.toPlainText()).split("\n")
         self.ui.textBrowser_search_keys.setPlainText("\n".join(sorted([x.strip(string.whitespace) for x in search_key_list if x.strip(string.whitespace)])))
 
     def show_names(self):
@@ -233,8 +234,8 @@ class MainWindow(QMainWindow):
         allowed_chars = string.letters + string.digits + '\n-"()/,'
 
         #First converts any special characters (e.g smart quotes to staright quotes or em dashes to regular deshes) then splits each item into a list
-        text_in = (str(self.ui.plainTextEdit_project.toPlainText()).replace(u"\u2018", '"').replace(u"\u2019", '"').\
-        replace(u"\u201c",'"').replace(u"\u201d", '"').replace(u"\u2013", "-"))
+
+        text_in = unicode(self.ui.plainTextEdit_project.toPlainText())
 
         # Filters out any non-allowed characters
         p_text = "".join([x for x in text_in if x in allowed_chars or x == " "])
@@ -250,16 +251,16 @@ class MainWindow(QMainWindow):
 
 
         # Take in all names listed under presented/internal names
-        if str(self.ui.plainTextEdit_internal.toPlainText()):
-            i_text = "".join([x for x in str(self.ui.plainTextEdit_internal.toPlainText()) if x in allowed_chars] or x == " ")
+        if unicode(self.ui.plainTextEdit_internal.toPlainText()):
+            i_text = "".join([x for x in unicode(self.ui.plainTextEdit_internal.toPlainText()) if x in allowed_chars] or x == " ")
             # Split text on the \n and strips whitespace leaving out any lines that are purely whitespace
             self.internal_names = [x.strip(string.whitespace) for x in i_text.split("\n") if x or x.strip(string.whitespace)]
         else:
             self.internal_names = []
 
         # Take in all names listed under presented/internal names
-        if str(self.ui.plainTextEdit_competitor.toPlainText()):
-            c_text = "".join([x for x in str(self.ui.plainTextEdit_competitor.toPlainText()) if x in allowed_chars or x == " "])
+        if unicode(self.ui.plainTextEdit_competitor.toPlainText()):
+            c_text = "".join([x for x in unicode(self.ui.plainTextEdit_competitor.toPlainText()) if x in allowed_chars or x == " "])
             # Split text on the \n and strips whitespace leaving out any lines that are purely whitespace
             self.competitor_names = [x.strip(string.whitespace) for x in c_text.split("\n") if x.strip(string.whitespace)]
         else:
@@ -334,7 +335,7 @@ class MainWindow(QMainWindow):
 
     # ----Pharma/INN Tab Functions---- #
     def search_pharma(self):
-        pharma_search_item = str(self.ui.pharma_search_line.text()).strip(string.whitespace).lower()
+        pharma_search_item = unicode(self.ui.pharma_search_line.text()).strip(string.whitespace).lower()
         for row in xrange(0,self.ui.pharma_avoid_table.rowCount()):
             if self.ui.pharma_avoid_table.item(row, 1).text() == pharma_search_item:
                 self.ui.pharma_avoid_table.scrollToItem(self.ui.pharma_avoid_table.item(row, 1), QtGui.QAbstractItemView.PositionAtTop)
@@ -360,7 +361,7 @@ class MainWindow(QMainWindow):
         self.ui.pharma_avoid_table.sortItems(0)
 
     def search_inn(self):
-        inn_search_item = str(self.ui.inn_search_line.text()).strip(string.whitespace).lower()
+        inn_search_item = unicode(self.ui.inn_search_line.text()).strip(string.whitespace).lower()
         for row in xrange(0,self.ui.inn_avoid_table.rowCount()):
             if self.ui.inn_avoid_table.item(row, 1).text() == inn_search_item:
                 self.ui.inn_avoid_table.scrollToItem(self.ui.inn_avoid_table.item(row, 1), QtGui.QAbstractItemView.PositionAtTop)
@@ -388,7 +389,7 @@ class MainWindow(QMainWindow):
 
     # ----Search Pal Tab Functions---- #
     def get_search_keys(self):
-        names_for_keys, list1 = parse_names(str(self.ui.plainTextEdit_search_names.toPlainText()))
+        names_for_keys, list1 = parse_names(unicode(self.ui.plainTextEdit_search_names.toPlainText()))
         self.ui.plainTextEdit_search_names.setPlainText("\n".join(names_for_keys))
 
         if self.ui.structural_radio.isChecked():
