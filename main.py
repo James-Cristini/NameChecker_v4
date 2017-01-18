@@ -24,7 +24,7 @@ from PyQt4.QtCore import QThread, SIGNAL
 from PyQt4.QtGui import QApplication, QMainWindow, QWidget, QDialog, QTableWidgetItem, QMessageBox
 from namechecker_ui import Ui_NameChecker
 from build_lists import parse_names, write_avoids, build_project_avoids
-from PHARMA_INN_AVOIDS import PHARMA_AVOIDS, INN_USAN_AVOIDS
+from PHARMA_INN_AVOIDS_test import PHARMA_AVOIDS, INN_USAN_AVOIDS
 from check_avoids import check_avoids, check_internal_names, check_competitor_names
 from check_url import check_domain
 from search_keys import get_keys
